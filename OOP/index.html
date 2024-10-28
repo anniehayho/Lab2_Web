@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library System</title>
+</head>
+<body>
+    <h1>Library System</h1>
+    <p>Open the browser console (F12) to see the results</p>
+
+    <div id="output"></div>
+
+    <script>
+        // Past the entire library.js code here
+        // Abstract User class
+        class User {
+            constructor(name, userType) {
+                if (this.constructor === User) {
+                    throw new Error("Cannot instantiate abstract User class");
+                }
+                this.name = name;
+                this.userType = userType;
+                this.borrowedBooks = [];
+            }
+
+            borrow(book) {
+                throw new Error("Method 'borrow' must be implemented");
+            }
+
+            return(book) {
+                const index = this.borrowedBooks.findIndex(b => b.isbn === book.isbn);
+                if (index === -1) {
+                    throw new Error("User has not borrowed this book");
+                }
+                this.borrowedBooks.splice(index, 1);
+                book.returnBook();
+            }
+        }
+
+        class Student extends User {
+            constructor(name) {
+                super(name, "Student");
+                this.borrowLimit = 3;
+            }
+
+            borrow(book) {
+                if (this.borrowedBooks.length >= this.borrowLimit) {
+                    throw new Error("Student has reached borrowing limit of 3 books");
+                }
+                if (book.availableCopies <= 0) {
+                    throw new Error("No copies available");
+                }
+                this.borrowedBooks.push(book);
+                book.borrowBook();
+            }
+        }
+
+        class Teacher extends User {
+            constructor(name) {
+                super(name, "Teacher");
+                this.borrowLimit = 5;
+            }
+
+            borrow(book) {
+                if (this.borrowedBooks.length >= this.borrowLimit) {
+                    throw new Error("Teacher has reached borrowing limit of 5 books");
+                }
+                if (book.availableCopies <= 0) {
+                    throw new Error("No copies available");
+                }
+                this.borrowedBooks.push(book);
+                book.borrowBook();
+            }
+        }
+
+        class Book {
+            constructor(title, author, isbn, availableCopies) {
+                this.title = title;
+                this.author = author;
+                this.isbn = isbn;
+                this.availableCopies = availableCopies;
+            }
+
+            borrowBook() {
+                if (this.availableCopies <= 0) {
+                    throw new Error("No copies available");
+                }
+                this.availableCopies--;
+            }
+
+            returnBook() {
+                this.availableCopies++;
+            }
+
+            toString() {
+                return `${this.title} by ${this.author} (ISBN: ${this.isbn}) - ${this.availableCopies} copies available`;
+            }
+        }
+
+        class Library {
+            constructor() {
+                this.books = new Map();
+                this.users = new Map();
+            }
+
+            addBook(book) {
+                if (this.books.has(book.isbn)) {
+                    throw new Error("Book with this ISBN already exists");
+                }
+                this.books.set(book.isbn, book);
+            }
+
+            addUser(user) {
+                if (this.users.has(user.name)) {
+                    throw new Error("User already exists");
+                }
+                this.users.set(user.name, user);
+            }
+
+            borrowBook(userName, isbn) {
+                const user = this.users.get(userName);
+                const book = this.books.get(isbn);
+
+                if (!user) throw new Error("User not found");
+                if (!book) throw new Error("Book not found");
+
+                user.borrow(book);
+            }
+
+            returnBook(userName, isbn) {
+                const user = this.users.get(userName);
+                const book = this.books.get(isbn);
+
+                if (!user) throw new Error("User not found");
+                if (!book) throw new Error("Book not found");
+
+                user.return(book);
+            }
+
+            listAvailableBooks() {
+                return Array.from(this.books.values())
+                    .filter(book => book.availableCopies > 0)
+                    .map(book => book.toString());
+            }
+        }
+
+        // Modified test function to output to both console and page
+        function testLibrarySystem() {
+            const output = document.getElementById('output');
+            function log(message) {
+                console.log(message);
+                output.innerHTML += message + '<br>';
+            }
+
+            try {
+                // Create library
+                const library = new Library();
+
+                // Add books
+                const book1 = new Book("The Great Gatsby", "F. Scott Fitzgerald", "978-0743273565", 2);
+                const book2 = new Book("1984", "George Orwell", "978-0451524935", 3);
+                const book3 = new Book("Pride and Prejudice", "Jane Austen", "978-0141439518", 1);
+                
+                library.addBook(book1);
+                library.addBook(book2);
+                library.addBook(book3);
+
+                // Add users
+                const student = new Student("John Smith");
+                const teacher = new Teacher("Mrs. Johnson");
+                
+                library.addUser(student);
+                library.addUser(teacher);
+
+                // Test borrowing
+                log("<br>Initial available books:");
+                library.listAvailableBooks().forEach(book => log(book));
+
+                log("<br>Testing student borrowing:");
+                library.borrowBook("John Smith", "978-0743273565");
+                log(`John Smith borrowed books: ${student.borrowedBooks.length}`);
+                
+                log("<br>Available books after student borrowing:");
+                library.listAvailableBooks().forEach(book => log(book));
+
+                log("<br>Testing teacher borrowing:");
+                library.borrowBook("Mrs. Johnson", "978-0451524935");
+                log(`Mrs. Johnson borrowed books: ${teacher.borrowedBooks.length}`);
+
+                log("<br>Testing return:");
+                library.returnBook("John Smith", "978-0743273565");
+                log("<br>Available books after return:");
+                library.listAvailableBooks().forEach(book => log(book));
+
+                // Test error cases
+                log("<br>Testing error cases:");
+                
+                // Try to borrow unavailable book
+                try {
+                    for (let i = 0; i < 4; i++) {
+                        library.borrowBook("John Smith", "978-0141439518");
+                    }
+                } catch (e) {
+                    log("Error: " + e.message);
+                }
+
+                // Try to exceed student limit
+                try {
+                    for (let i = 0; i < 4; i++) {
+                        library.borrowBook("John Smith", "978-0451524935");
+                    }
+                } catch (e) {
+                    log("Error: " + e.message);
+                }
+
+            } catch (e) {
+                log("Test failed: " + e.message);
+            }
+        }
+
+        // Run the test when page loads
+        window.onload = testLibrarySystem;
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Table Generator</h1>
+        <div class="input-group">
+            <input type="number" id="rows" placeholder="Enter rows" min="1">
+            <input type="number" id="cols" placeholder="Enter columns" min="1">
+            <button onclick="generateTable()">Generate Table</button>
+        </div>
+        <div id="tableContainer"></div>
+    </div>
+
+    <script>
+        function generateTable() {
+            const rows = parseInt(document.getElementById('rows').value) || 0;
+            const cols = parseInt(document.getElementById('cols').value) || 0;
+            
+            if (rows <= 0 || cols <= 0) {
+                alert('Please enter valid numbers for rows and columns');
+                return;
+            }
+
+            const tableContainer = document.getElementById('tableContainer');
+            let tableHTML = '<table>';
+
+            for (let i = 1; i <= rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 1; j <= cols; j++) {
+                    tableHTML += `<td>(${i}, ${j})</td>`;
+                }
+                tableHTML += '</tr>';
+            }
+
+            tableHTML += '</table>';
+            tableContainer.innerHTML = tableHTML;
+        }
+    </script>
+</body>
+</html>
