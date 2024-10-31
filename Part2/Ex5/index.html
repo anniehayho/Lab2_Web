@@ -4,106 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Application</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Quiz Application</h1>
-    <form id="quizForm">
+    <div id="quiz">
+        <h1>Quiz Application</h1>
+        
         <div class="question">
-            <h2>1. What is the capital of France?</h2>
-            <div class="options">
-                <div class="option">
-                    <input type="radio" name="q1" id="q1a" value="Berlin">
-                    <label for="q1a">Berlin</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q1" id="q1b" value="Madrid">
-                    <label for="q1b">Madrid</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q1" id="q1c" value="Paris">
-                    <label for="q1c">Paris</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q1" id="q1d" value="Rome">
-                    <label for="q1d">Rome</label>
-                </div>
-            </div>
+            <h3>1. What is the capital of France?</h3>
+            <input type="radio" name="q1" value="Berlin"> Berlin<br>
+            <input type="radio" name="q1" value="Madrid"> Madrid<br>
+            <input type="radio" name="q1" value="Paris"> Paris<br>
+            <input type="radio" name="q1" value="Rome"> Rome<br>
         </div>
 
         <div class="question">
-            <h2>2. Which planet is known as the Red Planet?</h2>
-            <div class="options">
-                <div class="option">
-                    <input type="radio" name="q2" id="q2a" value="Earth">
-                    <label for="q2a">Earth</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q2" id="q2b" value="Mars">
-                    <label for="q2b">Mars</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q2" id="q2c" value="Jupiter">
-                    <label for="q2c">Jupiter</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q2" id="q2d" value="Venus">
-                    <label for="q2d">Venus</label>
-                </div>
-            </div>
+            <h3>2. Which planet is known as the Red Planet?</h3>
+            <input type="radio" name="q2" value="Earth"> Earth<br>
+            <input type="radio" name="q2" value="Mars"> Mars<br>
+            <input type="radio" name="q2" value="Jupiter"> Jupiter<br>
+            <input type="radio" name="q2" value="Venus"> Venus<br>
         </div>
 
         <div class="question">
-            <h2>3. What is the largest ocean on Earth?</h2>
-            <div class="options">
-                <div class="option">
-                    <input type="radio" name="q3" id="q3a" value="Atlantic">
-                    <label for="q3a">Atlantic</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q3" id="q3b" value="Indian">
-                    <label for="q3b">Indian</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q3" id="q3c" value="Arctic">
-                    <label for="q3c">Arctic</label>
-                </div>
-                <div class="option">
-                    <input type="radio" name="q3" id="q3d" value="Pacific">
-                    <label for="q3d">Pacific</label>
-                </div>
-            </div>
+            <h3>3. What is the largest ocean on Earth?</h3>
+            <input type="radio" name="q3" value="Atlantic"> Atlantic<br>
+            <input type="radio" name="q3" value="Indian"> Indian<br>
+            <input type="radio" name="q3" value="Arctic"> Arctic<br>
+            <input type="radio" name="q3" value="Pacific"> Pacific<br>
         </div>
-        <div class="submit-container">
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-    <div id="score" class="score"></div>
+
+        <button id="submit">Submit</button>
+        <p id="result"></p>
+    </div>
 
     <script>
+        let quizSubmitted = false;
+
         const correctAnswers = {
             q1: "Paris",
             q2: "Mars",
             q3: "Pacific"
         };
 
-        document.getElementById('quizForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            let score = 0;
-            const answers = {
-                q1: document.querySelector('input[name="q1"]:checked')?.value,
-                q2: document.querySelector('input[name="q2"]:checked')?.value,
-                q3: document.querySelector('input[name="q3"]:checked')?.value
-            };
+        const submitButton = document.getElementById('submit');
+        const resultDisplay = document.getElementById('result');
+        const allInputs = document.querySelectorAll('input[type="radio"]');
 
-            Object.keys(correctAnswers).forEach(question => {
-                if (answers[question] === correctAnswers[question]) {
-                    score++;
+        // Submit button click handler
+        submitButton.addEventListener('click', () => {
+            if (quizSubmitted) return;
+
+            let score = 0;
+            let total = Object.keys(correctAnswers).length;
+
+            // Check each question
+            for (let question in correctAnswers) {
+                const selectedAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === correctAnswers[question]) {
+                        score++;
+                    }
+                }
+            }
+
+            // Display result
+            resultDisplay.textContent = `Your score: ${score}/${total}`;
+        });
+
+        // Enter key support
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !quizSubmitted) {
+                submitButton.click();
+            }
+        });
+
+        // Prevent changing answers after submission
+        allInputs.forEach(input => {
+            input.addEventListener('click', (e) => {
+                if (quizSubmitted) {
+                    e.preventDefault();
+                    return false;
                 }
             });
+        });
 
-            document.getElementById('score').textContent = `Your score: ${score}/3`;
+        // Number key shortcuts for answers (1-4)
+        document.addEventListener('keydown', (e) => {
+            if (quizSubmitted) return;
+
+            if (e.key >= '1' && e.key <= '4') {
+                const focusedInput = document.activeElement;
+                let questionGroup;
+                
+                if (focusedInput.type === 'radio') {
+                    questionGroup = focusedInput.name;
+                } else {
+                    questionGroup = 'q1';
+                }
+
+                const options = document.querySelectorAll(`input[name="${questionGroup}"]`);
+                const index = parseInt(e.key) - 1;
+                if (options[index]) {
+                    options[index].checked = true;
+                }
+            }
         });
     </script>
 </body>

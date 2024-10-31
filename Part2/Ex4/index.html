@@ -3,49 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guessing Game</title>
-    <link rel="stylesheet" href="styles.css">
-
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            text-align: center;
+            padding: 50px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Guess the Number (1-100)</h1>
-        <div class="input-container">
-            <input type="number" id="guess" min="1" max="100">
-            <button onclick="checkGuess()">Guess</button>
-        </div>
-        <div id="message"></div>
-    </div>
+    <h1>Guess the Number (1-100)</h1>
+    <input type="number" id="guess" placeholder="Enter your guess">
+    <button id="submitGuess">Guess</button>
+    <p id="feedback"></p>
 
     <script>
-        // Generate random number between 1 and 100
+        // Generate random number when game starts
         const targetNumber = Math.floor(Math.random() * 100) + 1;
-        const messageElement = document.getElementById('message');
-        const guessInput = document.getElementById('guess');
 
-        function checkGuess() {
+        // Get DOM elements
+        const guessInput = document.getElementById('guess');
+        const submitButton = document.getElementById('submitGuess');
+        const feedback = document.getElementById('feedback');
+
+        // Handle guess submission
+        function handleGuess() {
             const userGuess = parseInt(guessInput.value);
-            
+
+            // Validate input
             if (isNaN(userGuess) || userGuess < 1 || userGuess > 100) {
-                messageElement.textContent = 'Please enter a valid number between 1 and 100';
+                feedback.textContent = 'Please enter a valid number between 1 and 100';
                 return;
             }
 
+            // Check guess
             if (userGuess === targetNumber) {
-                messageElement.textContent = 'Correct! You guessed it!';
+                feedback.textContent = 'Correct! You guessed it!';
             } else if (userGuess > targetNumber) {
-                messageElement.textContent = 'Too high!';
+                feedback.textContent = 'Too high!';
             } else {
-                messageElement.textContent = 'Too low!';
+                feedback.textContent = 'Too low!';
             }
+            guessInputgues.blur();
+            submitButton.focus();
         }
 
-        // Allow Enter key to submit guess
+        // Event listeners
+        submitButton.addEventListener('click', handleGuess);
+
+        // Enter key support
         guessInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                checkGuess();
+                guessInput.blur();
+                handleGuess();
+                submitButton.focus();
             }
         });
+
+        // Prevent non-numeric input
+        guessInput.addEventListener('focus', function() {
+            this.value = '';
+        });
+
+        // Start with focus on input
+        guessInput.focus();
+
+        // Prevent submitting after correct guess
+        let isGameOver = false;
+        const originalHandleGuess = handleGuess;
+        handleGuess = function() {
+            if (isGameOver) return;
+            originalHandleGuess();
+            if (parseInt(guessInput.value) === targetNumber) {
+                isGameOver = true;
+            }
+        };
     </script>
 </body>
 </html>

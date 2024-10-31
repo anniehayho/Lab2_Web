@@ -3,33 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Table Generator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Dynamic Table</title>
+    <style>
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div style="text-align:center;">
         <h1>Dynamic Table Generator</h1>
-        <div class="input-group">
-            <input type="number" id="rows" placeholder="Enter rows" min="1">
-            <input type="number" id="cols" placeholder="Enter columns" min="1">
-            <button onclick="generateTable()">Generate Table</button>
-        </div>
-        <div id="tableContainer"></div>
+        <input type="number" id="rows" placeholder="Rows">
+        <input type="number" id="cols" placeholder="Columns">
+        <button id="generate">Generate Table</button>
     </div>
 
+    <div id="tableContainer"></div>
+
     <script>
+        // Get the elements
+        const generateBtn = document.getElementById('generate');
+        const rowsInput = document.getElementById('rows');
+        const colsInput = document.getElementById('cols');
+        const tableContainer = document.getElementById('tableContainer');
+
+        // Add event listener to the generate button
+        generateBtn.addEventListener('click', generateTable);
+
+        // Add event listeners for Enter key
+        rowsInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                colsInput.focus();
+            }
+        });
+
+        colsInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateTable();
+            }
+        });
+
         function generateTable() {
-            const rows = parseInt(document.getElementById('rows').value) || 0;
-            const cols = parseInt(document.getElementById('cols').value) || 0;
+            // Get input values
+            const rows = parseInt(rowsInput.value);
+            const cols = parseInt(colsInput.value);
             
-            if (rows <= 0 || cols <= 0) {
+            // Validate input
+            if (!rows || !cols || rows < 1 || cols < 1) {
                 alert('Please enter valid numbers for rows and columns');
                 return;
             }
 
-            const tableContainer = document.getElementById('tableContainer');
+            // Create table HTML
             let tableHTML = '<table>';
-
+            
+            // Generate rows and columns
             for (let i = 1; i <= rows; i++) {
                 tableHTML += '<tr>';
                 for (let j = 1; j <= cols; j++) {
@@ -37,10 +76,30 @@
                 }
                 tableHTML += '</tr>';
             }
-
+            
             tableHTML += '</table>';
+            
+            // Insert table into container
             tableContainer.innerHTML = tableHTML;
         }
+
+        // Clear table when inputs change
+        rowsInput.addEventListener('input', function() {
+            tableContainer.innerHTML = '';
+        });
+
+        colsInput.addEventListener('input', function() {
+            tableContainer.innerHTML = '';
+        });
+
+        // Prevent negative numbers
+        rowsInput.addEventListener('change', function() {
+            if (this.value < 0) this.value = 1;
+        });
+
+        colsInput.addEventListener('change', function() {
+            if (this.value < 0) this.value = 1;
+        });
     </script>
 </body>
 </html>

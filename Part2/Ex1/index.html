@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,25 +34,38 @@
     </div>
 
     <script>
-        document.getElementById('add').onclick = function() {
-            calculate('+');
-        };
-        document.getElementById('subtract').onclick = function() {
-            calculate('-');
-        };
-        document.getElementById('multiply').onclick = function() {
-            calculate('*');
-        };
-        document.getElementById('divide').onclick = function() {
-            calculate('/');
-        };
+        // Get all elements
+        const num1Input = document.getElementById('num1');
+        const num2Input = document.getElementById('num2');
+        const resultSpan = document.getElementById('result');
 
-        function calculate(operation) {
-            const num1 = parseFloat(document.getElementById('num1').value) || 0;
-            const num2 = parseFloat(document.getElementById('num2').value) || 0;
+        // Add event listeners to buttons
+        document.getElementById('add').addEventListener('click', () => {
+            performCalculation('+');
+        });
+
+        document.getElementById('subtract').addEventListener('click', () => {
+            performCalculation('-');
+        });
+
+        document.getElementById('multiply').addEventListener('click', () => {
+            performCalculation('*');
+        });
+
+        document.getElementById('divide').addEventListener('click', () => {
+            performCalculation('/');
+        });
+
+        // Calculator function
+        function performCalculation(operator) {
+            // Get input values
+            const num1 = parseFloat(num1Input.value) || 0;
+            const num2 = parseFloat(num2Input.value) || 0;
+            
             let result;
 
-            switch(operation) {
+            // Perform calculation based on operator
+            switch(operator) {
                 case '+':
                     result = num1 + num2;
                     break;
@@ -63,12 +76,54 @@
                     result = num1 * num2;
                     break;
                 case '/':
-                    result = num2 !== 0 ? num1 / num2 : 'Cannot divide by zero';
+                    if (num2 === 0) {
+                        result = 'Cannot divide by zero';
+                    } else {
+                        result = num1 / num2;
+                    }
                     break;
+                default:
+                    result = 'Invalid operator';
             }
 
-            document.getElementById('result').textContent = result;
+            // If result is a number, round to 4 decimal places to avoid floating point issues
+            if (typeof result === 'number') {
+                result = Math.round(result * 10000) / 10000;
+            }
+
+            // Display result
+            resultSpan.textContent = result;
         }
+
+        // Add keyboard support
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case '+':
+                    performCalculation('+');
+                    break;
+                case '-':
+                    performCalculation('-');
+                    break;
+                case '*':
+                    performCalculation('*');
+                    break;
+                case '/':
+                    performCalculation('/');
+                    break;
+                case 'Enter':
+                    performCalculation('+');
+                    break;
+            }
+        });
+
+        // Clear result when input changes
+        num1Input.addEventListener('input', () => {
+            resultSpan.textContent = '0';
+        });
+
+        num2Input.addEventListener('input', () => {
+            resultSpan.textContent = '0';
+        });
     </script>
 </body>
 </html>
